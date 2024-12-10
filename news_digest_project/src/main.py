@@ -10,7 +10,7 @@ import re
 import redis
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext
 import asyncio
 from news_fetch import fetch_news
 from summarizer import summarize

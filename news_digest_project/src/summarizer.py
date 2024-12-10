@@ -6,7 +6,7 @@ OPENAI_API_KEY = 'sk-proj-QbgfirTaZ3bhrM6zm6XMNKIkDhX6Tz2_HXqNzZNw3fJ58f-L-8N1Dq
 async def summarize(text):
     openai.api_key = OPENAI_API_KEY
     response = openai.ChatCompletion.create(
-        model='gpt-4o',
+        model='gpt-3.5-turbo',
         messages=[
             {"role": "user", "content": f"Сделай краткое изложение следующего текста: {text}"}
         ]

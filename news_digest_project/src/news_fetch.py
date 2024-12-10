@@ -1,10 +1,8 @@
-# Конфигурация Telegram
 import os
 import redis
 import asyncio
 from telethon import TelegramClient
 from telethon.tl.functions.messages import GetHistoryRequest
-from telethon.tl.types import PeerChannel
 import openai
 
 # Настройки
@@ -13,17 +11,16 @@ API_HASH = 'd1b7a0f11173040508d4e214b3189bc3'
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-CHANNELS = ['channel_username1', 'channel_username2']  # Укажите каналы для сбора новостей
-OPENAI_API_KEY = 'your_openai_api_key'  # Замените на ваш OpenAI API Key
+CHANNELS = ['@buhtourbiz', '@portierdenuit']  # Укажите каналы для сбора новостей
+OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY'  # Замените на ваш OpenAI API Key
 
 # Инициализация Redis
-redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
 
 # Инициализация клиента Telegram
 client = TelegramClient('session_name', API_ID, API_HASH)
 
 async def fetch_news(channel):
-    await client.start()
     entity = await client.get_entity(channel)
     
     # Получение истории сообщений
@@ -38,6 +35,7 @@ async def fetch_news(channel):
 
     for message in history.messages:
         if message.message:
+            print(f"Получено сообщение: {message.message}")  # Отладочное сообщение
             # Сохранение сообщения в Redis
             redis_client.lpush('news_posts', message.message)
 
@@ -50,9 +48,9 @@ async def summarize_news():
     
     for post in news_posts:
         response = openai.ChatCompletion.create(
-            model="gpt-4o",
+            model="gpt-3.5-turbo",  # Используйте правильное имя модели
             messages=[
-                {"role": "user", "content": f"Сделай краткое резюме для следующей новости: {post.decode('utf-8')}"}
+                {"role": "user", "content": f"Сделай краткое резюме для следующей новости: {post}"}
             ]
         )
         summaries.append(response['choices'][0]['message']['content'])
@@ -63,9 +61,11 @@ async def summarize_news():
         redis_client.lpush('news_summaries', summary)
 
 async def main():
+    await client.start()  # Запускаем клиент только один раз
     # Сбор новостей из всех указанных каналов
     await asyncio.gather(*(fetch_news(channel) for channel in CHANNELS))
     await summarize_news()
+    await client.disconnect()  # Отключаем клиент после завершения работы
 
 if __name__ == '__main__':
     asyncio.run(main())
