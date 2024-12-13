@@ -1,9 +1,8 @@
-import os
 import redis
 import asyncio
-from telethon import TelegramClient
-from telethon.tl.functions.messages import GetHistoryRequest
 import openai
+from telethon import TelegramClient
+from fetch_news import fetch_news
 
 # Настройки
 API_ID = '26085699'
@@ -16,32 +15,6 @@ OPENAI_API_KEY = 'sk-proj-B8rh_7tFW4tNKJzMxAv0RcBvv0iNy_db4JGAl1LrzyBpCR0zw64Bew
 
 # Инициализация Redis
 redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
-
-# Инициализация клиента Telegram
-client = TelegramClient('session_name', API_ID, API_HASH)
-
-async def fetch_news(channel):
-    entity = await client.get_entity(channel)
-    
-    # Получение истории сообщений
-    history = await client(GetHistoryRequest(
-        peer=entity,
-        limit=10,  # Количество сообщений для получения
-        offset_date=None,
-        offset_id=0,
-        add_offset=0,
-        hash=0
-    ))
-
-    messages = []
-    for message in history.messages:
-        if message.message:
-            print(f"Получено сообщение: {message.message}")  # Отладочное сообщение
-            messages.append(message.message)
-            # Сохранение сообщения в Redis
-            redis_client.lpush('news_posts', message.message)
-    
-    return messages  # Возвращаем список сообщений
 
 async def summarize_news():
     # Получение сообщений из Redis
@@ -65,12 +38,13 @@ async def summarize_news():
         redis_client.lpush('news_summaries', summary)
 
 async def main():
+    client = TelegramClient('session_name', API_ID, API_HASH)
     await client.start()  # Запускаем клиент только один раз
     news_items = []
     
     # Сбор новостей из всех указанных каналов
     for channel in CHANNELS:
-        news = await fetch_news(channel)  # Ждем завершения корутины fetch_news
+        news = await fetch_news(client, channel)  # Передаем client в fetch_news
         news_items.extend(news)  # Добавляем новые сообщения в общий список
 
     await summarize_news()  # Получаем резюме для всех новостей
