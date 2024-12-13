@@ -11,7 +11,6 @@ REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
 CHANNELS = ['@travelline_news', '@russpass_business']  # Укажите каналы для сбора новостей
-OPENAI_API_KEY = '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'  # Замените на ваш OpenAI API Key
 
 # Инициализация Redis
 redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
