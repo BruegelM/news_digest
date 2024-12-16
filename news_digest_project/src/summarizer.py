@@ -1,4 +1,5 @@
 import openai
+from config import OPENAI_API_KEY
 
 async def summarize(text):
     openai.api_key = OPENAI_API_KEY
