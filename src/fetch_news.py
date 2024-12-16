@@ -25,11 +25,12 @@ async def fetch_news(client, channel):
     ))
 
     messages = []
+    print(f"Получено {len(history.messages)} сообщений из канала {channel}")
     for message in history.messages:
         if message.message:
             print(f"Получено сообщение: {message.message}")  # Отладочное сообщение
             messages.append(message.message)
-            # Сохранение сообщения в Redis
+             # Сохранение сообщения в Redis
             redis_client.lpush('news_posts', message.message)
-    
-    return messages  # Возвращаем список сообщений
+
+        return messages
