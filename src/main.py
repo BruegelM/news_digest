@@ -3,15 +3,16 @@ import asyncio
 import openai
 from telethon import TelegramClient
 from fetch_news import fetch_news
+from config import API_HASH
+from config import OPENAI_API_KEY
 
 # Настройки
 API_ID = '26085699'
-API_HASH = 'd1b7a0f11173040508d4e214b3189bc3'
+API_HASH = (API_HASH)
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
 CHANNELS = ['@travelline_news', '@russpass_business']  # Укажите каналы для сбора новостей
-OPENAI_API_KEY = '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'  # Замените на ваш OpenAI API Key
 
 # Инициализация Redis
 redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
