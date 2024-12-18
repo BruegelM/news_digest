@@ -1,3 +1,6 @@
+import asyncio
+import openai
+from telethon import TelegramClient
 import redis
 from telethon.tl.functions.messages import GetHistoryRequest
 
@@ -32,5 +35,6 @@ async def fetch_news(client, channel):
             messages.append(message.message)
              # Сохранение сообщения в Redis
             redis_client.lpush('news_posts', message.message)
-
-        return messages
+            return[]
+        
+    return messages
